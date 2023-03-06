@@ -12,6 +12,25 @@ router.get('/users/all', async (req: Request, res: Response) => {
     return res.json(users).status(200)
 })
 
+router.get('/users/find', async (req: Request, res: Response) => {
+    const { email, password } = req.body
+
+    if (!email) res.json({ Error: 'Email not Provided' }).status(400)
+
+    if (!password) res.json({ Error: 'Password not Provided' }).status(400)
+
+    const user = await prisma.user.findFirst({
+        where: {
+            email: email,
+            password: password
+        }
+    })
+
+    if (!user) return res.json({ Error: 'user not found' }).status(201)
+
+    return res.json(user).status(200)
+})
+
 router.post('/users/new', async (req: Request, res: Response) => {
     const users = await prisma.user.findFirst({
         where: {
