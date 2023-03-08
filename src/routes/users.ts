@@ -12,12 +12,12 @@ router.get('/users/all', async (req: Request, res: Response) => {
     return res.json(users).status(200)
 })
 
-router.get('/users/find', async (req: Request, res: Response) => {
+router.post('/users/find', async (req: Request, res: Response) => {
     const { email, password } = req.body
 
-    if (!email) res.json({ Error: 'Email not Provided' }).status(400)
+    if (!email) return res.json({ Error: 'Email not Provided' }).status(401) // Not authorized
 
-    if (!password) res.json({ Error: 'Password not Provided' }).status(400)
+    if (!password) return res.json({ Error: 'Password not Provided' }).status(401)
 
     const user = await prisma.user.findFirst({
         where: {
