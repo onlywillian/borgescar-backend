@@ -43,7 +43,7 @@ router.post('/users/new', async (req: Request, res: Response) => {
     const newUser = await prisma.user.create({
         data: req.body
     });
-    ''
+    
     if (!newUser) return res.json({ Error: "User is not created" }).status(500)
 
     return res.json({ Users: newUser }).status(200)
