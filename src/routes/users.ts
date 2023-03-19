@@ -12,33 +12,14 @@ router.get('/users/all', async (req: Request, res: Response) => {
     return res.json(users).status(200)
 })
 
-router.post('/users/find', async (req: Request, res: Response) => {
-    const { email, password } = req.body
-
-    if (!email) return res.json({ Error: 'Email not Provided' }).status(401) // Not authorized
-
-    if (!password) return res.json({ Error: 'Password not Provided' }).status(401)
-
-    const user = await prisma.user.findFirst({
-        where: {
-            email: email,
-            password: password
-        }
-    })
-
-    if (!user) return res.json({ Error: 'user not found' }).status(201)
-
-    return res.json(user).status(200)
-})
-
 router.post('/users/new', async (req: Request, res: Response) => {
-    const users = await prisma.user.findFirst({
+    const user = await prisma.user.findFirst({
         where: {
             email: req.body.email
         }
     })
 
-    if (users) return res.json({ Error: "Email alreads in use" }).status(401)
+    if (user) return res.json({ Error: "Email alreads in use" }).status(401)
 
     const newUser = await prisma.user.create({
         data: req.body
@@ -46,7 +27,7 @@ router.post('/users/new', async (req: Request, res: Response) => {
     
     if (!newUser) return res.json({ Error: "User is not created" }).status(500)
 
-    return res.json({ Users: newUser }).status(200)
+    return res.json({ User: newUser }).status(200)
 })
 
 router.put('/users/update', async (req: Request, res: Response) => {
@@ -72,6 +53,8 @@ router.delete('/users/remove', async (req: Request, res: Response) => {
             email: email
         }
     })
+
+    return res.json({ DeletedUser: deletedUser }).status(200)
 })
 
 export default router;
