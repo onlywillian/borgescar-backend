@@ -22,3 +22,18 @@ model Administrador {
   password  String
   CreatedAt DateTime @default(now())
 }
+
+model Car {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  name      String
+  type      String
+  price     String
+  stock     String
+  CreatedAt DateTime @default(now())
+}
+
+model Assistance {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  initialDate DateTime @default(now())
+  finalDate   DateTime
+}
