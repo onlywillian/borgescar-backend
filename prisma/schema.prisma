@@ -14,3 +14,11 @@ model User {
   password  String
   CreatedAt DateTime @default(now())
 }
+
+model Administrador {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  name      String
+  email     String   @unique
+  password  String
+  CreatedAt DateTime @default(now())
+}
