@@ -27,8 +27,9 @@ model Car {
   id        String   @id @default(auto()) @map("_id") @db.ObjectId
   name      String
   type      String
-  price     String
-  stock     String
+  torque    String
+  price     Float
+  stock     Int
   CreatedAt DateTime @default(now())
 }
 
