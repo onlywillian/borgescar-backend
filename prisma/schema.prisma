@@ -24,13 +24,15 @@ model Administrador {
 }
 
 model Car {
-  id        String   @id @default(auto()) @map("_id") @db.ObjectId
-  name      String
-  type      String
-  torque    String
-  price     Float
-  stock     Int
-  CreatedAt DateTime @default(now())
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  name        String
+  type        String
+  price       Float
+  stock       Int
+  description String
+  image_link  String
+  audio_link  String
+  CreatedAt   DateTime @default(now())
 }
 
 model Assistance {
