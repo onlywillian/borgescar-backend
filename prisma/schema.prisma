@@ -30,7 +30,7 @@ model Car {
   price       Float
   stock       Int
   description String
-  image_link  String
+  image_links String[]
   audio_link  String
   CreatedAt   DateTime @default(now())
 }
