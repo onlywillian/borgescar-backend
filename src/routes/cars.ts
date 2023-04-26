@@ -10,7 +10,7 @@ router.get("/cars/all", async (req: Request, res: Response) => {
   if (cars.length === 0)
     return res.send({ Error: "No cars found" }).status(404);
 
-  return res.send({ cars }).status(200);
+  return res.send({ Cars: cars }).status(200);
 });
 
 router.post("/cars/find", async (req: Request, res: Response) => {
@@ -27,7 +27,7 @@ router.post("/cars/find", async (req: Request, res: Response) => {
   return res.json({ Car: car }).status(200);
 });
 
-router.post("/cars/new", async (req: Request, res: Response) => {
+router.post("/car/new", async (req: Request, res: Response) => {
   const newCar = await prisma.car.create({
     data: req.body,
   });
