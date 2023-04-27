@@ -1,30 +1,49 @@
 import { Router, Request, Response } from "express";
 import { PrismaClient } from "@prisma/client";
+import bcrypt from "bcrypt";
 import jwt, { Secret } from "jsonwebtoken";
-import authMiddleware from "../middlewares/authMiddleware";
 
 const prisma = new PrismaClient();
 
 const router = Router();
 
-router.post(
-  "/auth/login",
-  authMiddleware,
-  async (req: Request, res: Response) => {
-    const user = await prisma.user.findFirst({
-      where: {
-        email: req.body.email,
-        password: req.body.password,
-      },
-    });
+// Secret key from .env file
+const SECRET_KEY = <Secret>process.env.SECRET;
 
-    if (!user) return res.send({ Error: "User not found" }).status(200);
+router.post("/auth/login", async (req: Request, res: Response) => {
+  const { email, password } = req.body;
 
-    return res
-      .send({ User: { name: user.name, email: user.email } })
-      .status(200);
-  }
-);
+  const user = await prisma.user.findFirst({
+    where: {
+      email: email,
+    },
+  });
+
+  if (!user) return res.send({ Error: "User not found" }).status(200);
+
+  // Check if password exist
+  const comparePassword = await bcrypt.compare(password, user.password);
+
+  console.log(comparePassword);
+
+  if (!comparePassword)
+    return res.send({ Error: "Wrong password" }).status(401);
+
+  // Creating jwt token
+  const token = jwt.sign(
+    {
+      id: user?.id,
+    },
+    SECRET_KEY,
+    {
+      expiresIn: "2 days",
+    }
+  );
+
+  return res
+    .send({ User: { name: user.name, email: user.email }, token: token })
+    .status(200);
+});
 
 router.post("/auth/register", async (req: Request, res: Response) => {
   const { name, email, password } = req.body;
@@ -38,19 +57,20 @@ router.post("/auth/register", async (req: Request, res: Response) => {
 
   if (user) return res.send({ Error: "User alreads exists" }).status(401);
 
+  // Encrypting password
+  const salt = await bcrypt.genSalt(12);
+  const passwordHash = await bcrypt.hash(password, salt);
+
   // Creating a new User
   const newUser: any = await prisma.user.create({
     data: {
       name: name,
       email: email,
-      password: password,
+      password: passwordHash,
     },
   });
 
   if (!newUser) return res.send({ Error: "Erro ao criar usuário" }).status(500);
-
-  // Secret key from .env file
-  const SECRET_KEY = <Secret>process.env.SECRET;
 
   // Creating jwt token
   const token = jwt.sign(
