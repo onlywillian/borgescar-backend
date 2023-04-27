@@ -1,6 +1,7 @@
 import express from "express";
 import usersRouter from "./routes/users";
 import carsRouter from "./routes/cars";
+import admsRouter from "./routes/adms";
 import authRouter from "./auth/authRouter";
 import cors from "cors";
 
@@ -13,6 +14,7 @@ app.use(cors());
 // Routes
 app.use(usersRouter);
 app.use(carsRouter);
+app.use(admsRouter);
 app.use(authRouter);
 
 app.listen(8000);

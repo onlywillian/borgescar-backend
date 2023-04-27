@@ -27,7 +27,7 @@ router.get("/cars/:id", async (req: Request, res: Response) => {
   return res.send({ Car: car }).status(200);
 });
 
-router.post("/car/new", async (req: Request, res: Response) => {
+router.post("/cars/new", async (req: Request, res: Response) => {
   const newCar = await prisma.car.create({
     data: req.body,
   });
