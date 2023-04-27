@@ -13,7 +13,7 @@ router.get("/cars/all", async (req: Request, res: Response) => {
   return res.send({ Cars: cars }).status(200);
 });
 
-router.post("/cars/:id", async (req: Request, res: Response) => {
+router.get("/cars/:id", async (req: Request, res: Response) => {
   if (!req.params.id) return res.send({ Error: "Id not provided" }).status(401);
 
   const car = await prisma.car.findFirst({
@@ -22,9 +22,9 @@ router.post("/cars/:id", async (req: Request, res: Response) => {
     },
   });
 
-  if (!car) return res.json({ Error: "Car is not created" }).status(500);
+  if (!car) return res.send({ Error: "Car is not created" }).status(500);
 
-  return res.json({ Car: car }).status(200);
+  return res.send({ Car: car }).status(200);
 });
 
 router.post("/car/new", async (req: Request, res: Response) => {
@@ -32,9 +32,9 @@ router.post("/car/new", async (req: Request, res: Response) => {
     data: req.body,
   });
 
-  if (!newCar) return res.json({ Error: "Car is not created" }).status(500);
+  if (!newCar) return res.send({ Error: "Car is not created" }).status(500);
 
-  return res.json({ NewCar: newCar }).status(200);
+  return res.send({ NewCar: newCar }).status(200);
 });
 
 router.delete("/cars/remove", async (req: Request, res: Response) => {
@@ -42,13 +42,16 @@ router.delete("/cars/remove", async (req: Request, res: Response) => {
 
   if (!id) return res.send({ Error: "Id not provided" }).status(401);
 
-  const deletedCar = await prisma.user.delete({
+  const deletedCar = await prisma.car.delete({
     where: {
-      email: id,
+      id: id,
     },
   });
 
-  return res.send({ DeletedCar: deletedCar }).status(200);
+  if (!deletedCar)
+    return res.send({ Error: "Some error has ocurred" }).status(500);
+
+  return res.send({ Succes: "Car sucesfully deleted" }).status(200);
 });
 
 export default router;

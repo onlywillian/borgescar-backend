@@ -25,7 +25,7 @@ model Administrador {
 
 model Car {
   id          String   @id @default(auto()) @map("_id") @db.ObjectId
-  name        String
+  name        String   @unique
   type        String
   price       Float
   stock       Int
@@ -37,6 +37,7 @@ model Car {
 
 model Assistance {
   id          String   @id @default(auto()) @map("_id") @db.ObjectId
-  initialDate DateTime @default(now())
+  initialDate DateTime
   finalDate   DateTime
+  userId      String   @unique
 }
