@@ -13,12 +13,12 @@ router.get("/cars/all", async (req: Request, res: Response) => {
   return res.send({ Cars: cars }).status(200);
 });
 
-router.post("/cars/find", async (req: Request, res: Response) => {
-  if (!req.body.id) return res.send({ Error: "Id not provided" }).status(401);
+router.post("/cars/:id", async (req: Request, res: Response) => {
+  if (!req.params.id) return res.send({ Error: "Id not provided" }).status(401);
 
   const car = await prisma.car.findFirst({
     where: {
-      id: req.body.id,
+      id: req.params.id,
     },
   });
 
@@ -35,6 +35,20 @@ router.post("/car/new", async (req: Request, res: Response) => {
   if (!newCar) return res.json({ Error: "Car is not created" }).status(500);
 
   return res.json({ NewCar: newCar }).status(200);
+});
+
+router.delete("/cars/remove", async (req: Request, res: Response) => {
+  const { id } = req.body;
+
+  if (!id) return res.send({ Error: "Id not provided" }).status(401);
+
+  const deletedCar = await prisma.user.delete({
+    where: {
+      email: id,
+    },
+  });
+
+  return res.send({ DeletedCar: deletedCar }).status(200);
 });
 
 export default router;
