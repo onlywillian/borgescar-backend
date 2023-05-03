@@ -36,8 +36,8 @@ model Car {
 }
 
 model Assistance {
-  id          String   @id @default(auto()) @map("_id") @db.ObjectId
-  initialDate DateTime
-  finalDate   DateTime
-  userId      String   @unique
+  id     String   @id @default(auto()) @map("_id") @db.ObjectId
+  date   DateTime
+  time   DateTime
+  userId String
 }
