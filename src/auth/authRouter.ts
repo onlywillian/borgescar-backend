@@ -33,6 +33,9 @@ router.post("/auth/login", async (req: Request, res: Response) => {
   const token = jwt.sign(
     {
       id: user?.id,
+      name: user?.name,
+      email: user?.email,
+      password: user?.password,
     },
     SECRET_KEY,
     {
