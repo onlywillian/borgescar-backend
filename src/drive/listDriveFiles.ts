@@ -10,7 +10,14 @@ async function getAllFiles() {
       q: `'${GOOGLE_DRIVE_FOLDER_ID}' in parents and mimeType contains 'image/'`,
     });
 
-    return response.data.files;
+    const files = response.data.files;
+
+    if (files?.length === 0) {
+      console.log("No files found.");
+      return;
+    }
+
+    return files;
   } catch (error) {
     console.log(error);
   }
