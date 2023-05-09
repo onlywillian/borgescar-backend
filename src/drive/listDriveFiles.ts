@@ -1,12 +1,12 @@
-import driveService from "./driveAuth";
+import drive from "./driveAuth";
 
 const GOOGLE_DRIVE_FOLDER_ID = "1R3ohARnSkynrdE26TjevUjWACFg9QRcw";
 
 let imagesList;
 
-async function getAllFiles() {
+async function getAllImages() {
   try {
-    const response = await driveService.files.list({
+    const response = await drive.files.list({
       q: `'${GOOGLE_DRIVE_FOLDER_ID}' in parents and mimeType contains 'image/'`,
     });
 
@@ -23,7 +23,7 @@ async function getAllFiles() {
   }
 }
 
-getAllFiles().then((files) => {
+getAllImages().then((files) => {
   console.log(files);
 
   imagesList = files;

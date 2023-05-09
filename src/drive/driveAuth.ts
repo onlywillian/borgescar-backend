@@ -8,9 +8,9 @@ const auth = new google.auth.GoogleAuth({
   scopes: ["https://www.googleapis.com/auth/drive"],
 });
 
-const driveService = google.drive({
+const drive = google.drive({
   version: "v3",
   auth,
 });
 
-export default driveService;
+export default drive;
