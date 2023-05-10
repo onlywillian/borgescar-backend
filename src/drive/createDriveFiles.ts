@@ -1,53 +1,42 @@
 import drive from "./driveAuth";
 import fs from "fs";
+import path from "path";
+
+const GOOGLE_DRIVE_FOLDER_ID = "1R3ohARnSkynrdE26TjevUjWACFg9QRcw";
 
 async function uploadNewImage() {
-  try {
-    drive.files.create(
-      {
+  // creating folder container
+  const folderResponse = await drive.files.create(
+    {
+      requestBody: {
+        name: "folder",
+        parents: [GOOGLE_DRIVE_FOLDER_ID],
+        mimeType: "application/vnd.google-apps.folder", // folder type
+      },
+      fields: "id",
+    },
+    async (err, folder) => {
+      if (err) return console.log("Erro: " + err);
+
+      const imagePath = path.resolve(process.cwd(), "src/drive/carro.jpg");
+
+      // creating file into folder
+      const file = await drive.files.create({
         requestBody: {
-          name: "Nome da pasta",
-          mimeType: "application/vnd.google-apps.folder",
+          name: "image.jpg",
+          parents: [folder?.data.id as string],
+          mimeType: "image/jpg",
+        },
+        media: {
+          mimeType: "image/jpg",
+          body: fs.createReadStream(imagePath),
         },
         fields: "id",
-      },
-      (err, folder) => {
-        if (err) return console.log(`Erro ao criar pasta: ${err}`);
+      });
 
-        // Caminho do arquivo de imagem a ser enviado
-        const filePath = "caminho/para/a/imagem.jpg";
-
-        // Lê o conteúdo da imagem em um buffer
-        const fileContent = fs.readFileSync(filePath);
-
-        // Cria um objeto para fazer upload do arquivo
-        const fileMetadata = {
-          name: "Nome da imagem",
-          parents: [folder?.data.id as string],
-        };
-
-        const media = {
-          mimeType: "image/jpeg",
-          body: fs.createReadStream(filePath),
-        };
-
-        // Faz upload da imagem para o Google Drive
-        drive.files.create(
-          {
-            requestBody: fileMetadata,
-            media: media,
-            fields: "id",
-          },
-          (err: any, file: any) => {
-            if (err)
-              return console.log(`Erro ao fazer upload de imagem: ${err}`);
-
-            console.log(`Imagem enviada com sucesso! ID: ${file.data.id}`);
-          }
-        );
-      }
-    );
-  } catch (error) {
-    console.log(error);
-  }
+      return file.data;
+    }
+  );
 }
+
+uploadNewImage();
