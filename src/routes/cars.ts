@@ -1,8 +1,10 @@
 import { PrismaClient } from "@prisma/client";
 import { Router, Request, Response } from "express";
+import multer from 'multer'
 
 const prisma = new PrismaClient();
 const router = Router();
+const upload = multer();
 
 router.get("/cars/all", async (req: Request, res: Response) => {
   const cars = await prisma.car.findMany();
@@ -27,14 +29,16 @@ router.get("/cars/:id", async (req: Request, res: Response) => {
   return res.send({ Car: car }).status(200);
 });
 
-router.post("/cars/new", async (req: Request, res: Response) => {
-  const newCar = await prisma.car.create({
-    data: req.body,
-  });
+router.post("/cars/new", upload.single('img1'),async (req: Request, res: Response) => {
+  return console.log(req.file)
 
-  if (!newCar) return res.send({ Error: "Car is not created" }).status(500);
+  // const newCar = await prisma.car.create({
+  //   data: req.body,
+  // });
 
-  return res.send({ NewCar: newCar }).status(200);
+  // if (!newCar) return res.send({ Error: "Car is not created" }).status(500);
+
+  // return res.send({ NewCar: newCar }).status(200);
 });
 
 router.delete("/cars/remove", async (req: Request, res: Response) => {
