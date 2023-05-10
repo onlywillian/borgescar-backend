@@ -11,7 +11,7 @@ async function uploadNewImage() {
         },
         fields: "id",
       },
-      (err, folder) => {
+      (err: any, folder: any) => {
         if (err) return console.log(`Erro ao criar pasta: ${err}`);
 
         // Caminho do arquivo de imagem a ser enviado
