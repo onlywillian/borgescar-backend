@@ -4,7 +4,7 @@ import multer from 'multer'
 
 const prisma = new PrismaClient();
 const router = Router();
-const upload = multer();
+const upload = multer({ dest: 'uploads/' });
 
 router.get("/cars/all", async (req: Request, res: Response) => {
   const cars = await prisma.car.findMany();
@@ -29,17 +29,21 @@ router.get("/cars/:id", async (req: Request, res: Response) => {
   return res.send({ Car: car }).status(200);
 });
 
-router.post("/cars/new", upload.single('img1'),async (req: Request, res: Response) => {
-  return console.log(req.file)
+router.post(
+  "/cars/new", 
+  upload.fields([{name: 'image1'}, {name: 'image2'}, {name: 'image3'}]), 
+  async (req: Request, res: Response) => {
+    return console.log(req.files)
 
-  // const newCar = await prisma.car.create({
-  //   data: req.body,
-  // });
+    // const newCar = await prisma.car.create({
+    //   data: req.body,
+    // });
 
-  // if (!newCar) return res.send({ Error: "Car is not created" }).status(500);
+    // if (!newCar) return res.send({ Error: "Car is not created" }).status(500);
 
-  // return res.send({ NewCar: newCar }).status(200);
-});
+    // return res.send({ NewCar: newCar }).status(200);
+  }
+);
 
 router.delete("/cars/remove", async (req: Request, res: Response) => {
   const { id } = req.body;
