@@ -2,6 +2,8 @@ import { PrismaClient } from "@prisma/client";
 import { Router, Request, Response } from "express";
 import multer from 'multer'
 
+import uploadNewImage from "../drive/createDriveFiles";
+
 const prisma = new PrismaClient();
 const router = Router();
 const upload = multer({ dest: 'uploads/' });
@@ -31,9 +33,12 @@ router.get("/cars/:id", async (req: Request, res: Response) => {
 
 router.post(
   "/cars/new", 
-  upload.fields([{name: 'image1'}, {name: 'image2'}, {name: 'image3'}]), 
+  upload.fields([{ name: 'image1' }, { name: 'image2' }, { name: 'image3' }]), 
   async (req: Request, res: Response) => {
-    return console.log(req.files)
+    const { name } = req.body;
+    const files = req.files;
+
+    console.log(files)
 
     // const newCar = await prisma.car.create({
     //   data: req.body,

@@ -4,12 +4,12 @@ import path from "path";
 
 const GOOGLE_DRIVE_FOLDER_ID = "1R3ohARnSkynrdE26TjevUjWACFg9QRcw";
 
-async function uploadNewImage() {
+async function uploadNewImage(folderName: string, fileName: string, fileMimeType: string) {
   // creating folder container
-  const folderResponse = await drive.files.create(
+  await drive.files.create(
     {
       requestBody: {
-        name: "folder",
+        name: folderName,
         parents: [GOOGLE_DRIVE_FOLDER_ID],
         mimeType: "application/vnd.google-apps.folder", // folder type
       },
@@ -23,12 +23,12 @@ async function uploadNewImage() {
       // creating file into folder
       const file = await drive.files.create({
         requestBody: {
-          name: "image.jpg",
+          name: fileName,
           parents: [folder?.data.id as string],
-          mimeType: "image/jpg",
+          mimeType: fileMimeType,
         },
         media: {
-          mimeType: "image/jpg",
+          mimeType: fileMimeType,
           body: fs.createReadStream(imagePath),
         },
         fields: "id",
@@ -39,4 +39,4 @@ async function uploadNewImage() {
   );
 }
 
-uploadNewImage();
+export default uploadNewImage;
