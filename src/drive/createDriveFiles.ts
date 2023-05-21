@@ -1,10 +1,16 @@
 import drive from "./driveAuth";
 import fs from "fs";
 import path from "path";
+import { PassThrough } from "stream";
 
 const GOOGLE_DRIVE_FOLDER_ID = "1R3ohARnSkynrdE26TjevUjWACFg9QRcw";
 
-async function uploadNewImage(folderName: string, fileName: string, fileMimeType: string) {
+async function uploadNewImage(
+  folderName: string,
+  fileName: string,
+  fileMimeType: string,
+  fileBuffer: Buffer
+) {
   // creating folder container
   await drive.files.create(
     {
@@ -18,7 +24,8 @@ async function uploadNewImage(folderName: string, fileName: string, fileMimeType
     async (err, folder) => {
       if (err) return console.log("Erro: " + err);
 
-      const imagePath = path.resolve(process.cwd(), "src/drive/carro.jpg");
+      const bufferStream = new PassThrough();
+      bufferStream.end(fileBuffer);
 
       // creating file into folder
       const file = await drive.files.create({
@@ -29,10 +36,12 @@ async function uploadNewImage(folderName: string, fileName: string, fileMimeType
         },
         media: {
           mimeType: fileMimeType,
-          body: fs.createReadStream(imagePath),
+          body: bufferStream,
         },
         fields: "id",
       });
+
+      console.log(file);
 
       return file.data;
     }
