@@ -35,31 +35,36 @@ router.post(
   "/cars/new",
   upload.fields([{ name: "image1" }, { name: "image2" }, { name: "image3" }]),
   async (req: Request, res: Response) => {
-    const { name } = req.body;
+    const { name, description, type, price, stock } = req.body;
     const files: any = req.files;
 
     const possibleDatas = ["image1", "image2", "image3"];
 
-    for (let i = 0; i < possibleDatas.length; i++) {
-      const file = files[possibleDatas[i]][0];
+    const googleDriveImagesIds = await uploadNewImage(name, [
+      files[possibleDatas[0]][0],
+      files[possibleDatas[1]][0],
+      files[possibleDatas[2]][0],
+    ]);
 
-      const fileInformation = uploadNewImage(
-        name,
-        file.originalname,
-        file.mimeType,
-        file.buffer
-      );
+    const imagesLink = googleDriveImagesIds.map(
+      (id) => `https://drive.google.com/uc?export=view&id=${id}`
+    );
 
-      console.log(fileInformation);
-    }
+    const newCar = await prisma.car.create({
+      data: {
+        name: name,
+        description: description,
+        type: type,
+        price: Number(price),
+        stock: Number(stock),
+        image_links: imagesLink,
+        audio_link: "",
+      },
+    });
 
-    // const newCar = await prisma.car.create({
-    //   data: req.body,
-    // });
+    if (!newCar) return res.send({ Error: "Car is not created" }).status(500);
 
-    // if (!newCar) return res.send({ Error: "Car is not created" }).status(500);
-
-    // return res.send({ NewCar: newCar }).status(200);
+    return res.send({ NewCar: newCar }).status(200);
   }
 );
 
