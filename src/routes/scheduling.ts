@@ -5,9 +5,12 @@ const router = Router();
 const prisma = new PrismaClient();
 
 router.post("/schedules/new", async (req: Request, res: Response) => {
-  const newScheduling = prisma.schedules.create({
-    data: req.body
+  const newScheduling = await prisma.schedules.create({
+    data: req.body,
   });
+
+  if (!newScheduling)
+    return res.send({ Error: "Scheduling not created" }).status(403);
 
   return res.send({ Scheduling: newScheduling }).status(200);
 });
