@@ -36,6 +36,15 @@ router.post(
   upload.fields([{ name: "image1" }, { name: "image2" }, { name: "image3" }]),
   async (req: Request, res: Response) => {
     const { name, description, type, price, stock } = req.body;
+
+    const car = await prisma.car.findFirst({
+      where: {
+        name: name,
+      },
+    });
+
+    if (car) return res.send({ Error: "Car alreads exists" }).status(401);
+
     const files: any = req.files;
 
     const possibleDatas = ["image1", "image2", "image3"];
