@@ -2,7 +2,8 @@ import express from "express";
 import usersRouter from "./routes/users";
 import carsRouter from "./routes/cars";
 import admsRouter from "./routes/administrator";
-import authRouter from "./auth/usersAuth";
+// Auth
+import usersAuth from "./auth/usersAuth";
 import schedulingRouter from "./routes/scheduling";
 import cors from "cors";
 
@@ -17,6 +18,7 @@ app.use(usersRouter);
 app.use(carsRouter);
 app.use(admsRouter);
 app.use(schedulingRouter);
-app.use(authRouter);
+// Auth
+app.use(usersAuth);
 
 app.listen(8000);
