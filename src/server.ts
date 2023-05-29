@@ -4,6 +4,7 @@ import carsRouter from "./routes/cars";
 import admsRouter from "./routes/administrator";
 // Auth
 import usersAuth from "./auth/usersAuth";
+import administratorAuth from "./auth/administratorAuth";
 import schedulingRouter from "./routes/scheduling";
 import cors from "cors";
 
@@ -20,5 +21,6 @@ app.use(admsRouter);
 app.use(schedulingRouter);
 // Auth
 app.use(usersAuth);
+app.use(administratorAuth);
 
 app.listen(8000);

@@ -42,7 +42,7 @@ router.post("/adm/auth/login", async (req: Request, res: Response) => {
   );
 
   return res
-    .send({ adm: { name: adm.name, email: adm.email }, token: token })
+    .send({ Adm: { name: adm.name, email: adm.email }, token: token })
     .status(200);
 });
 
@@ -86,7 +86,7 @@ router.post("/adm/auth/register", async (req: Request, res: Response) => {
 
   return res
     .send({
-      adm: { id: newadm.id, name: newadm.name },
+      Adm: { id: newadm.id, name: newadm.name },
       token: token,
     })
     .status(200);
