@@ -44,7 +44,7 @@ router.post("/users/new", async (req: Request, res: Response) => {
 });
 
 router.put("/users/update", async (req: Request, res: Response) => {
-  const { oldEmail, newEmail } = req.body;
+  const { oldEmail, newEmail, newName } = req.body;
 
   const updatedUser = await prisma.user.update({
     where: {
@@ -52,6 +52,7 @@ router.put("/users/update", async (req: Request, res: Response) => {
     },
     data: {
       email: newEmail,
+      name: newName,
     },
   });
 

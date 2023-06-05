@@ -77,6 +77,35 @@ router.post(
   }
 );
 
+router.put("/cars/update", async (req: Request, res: Response) => {
+  const { id, name, description, type, price, stock } = req.body;
+
+  const oldCar = await prisma.car.findFirst({
+    where: {
+      id: id,
+    },
+  });
+
+  if (!oldCar) return res.send({ Error: "" }).status(404);
+
+  const carUpdated = await prisma.car.update({
+    where: {
+      id: id,
+    },
+    data: {
+      name: name,
+      description: description,
+      type: type,
+      price: price,
+      stock: stock,
+    },
+  });
+
+  if (!carUpdated) return res.send({ Error: "Update error" }).status(401);
+
+  return res.send({ Car: carUpdated }).status(200);
+});
+
 router.delete("/cars/remove", async (req: Request, res: Response) => {
   const { id } = req.body;
 
