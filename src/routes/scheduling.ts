@@ -4,6 +4,15 @@ import { PrismaClient } from "@prisma/client";
 const router = Router();
 const prisma = new PrismaClient();
 
+router.get("/schedules/all", async (req: Request, res: Response) => {
+  const schedules = await prisma.schedules.findMany();
+
+  if (!schedules)
+    return res.send({ Error: "Scheduling not created" }).status(403);
+
+  return res.send({ Scheduling: schedules }).status(200);
+});
+
 router.post("/schedules/new", async (req: Request, res: Response) => {
   const newScheduling = await prisma.schedules.create({
     data: req.body,
