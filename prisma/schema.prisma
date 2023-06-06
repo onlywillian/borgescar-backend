@@ -40,4 +40,5 @@ model Schedules {
   date     DateTime
   time     String
   userName String
+  carName  String
 }
