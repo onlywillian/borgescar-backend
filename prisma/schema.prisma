@@ -37,7 +37,7 @@ model Car {
 
 model Schedules {
   id       String   @id @default(auto()) @map("_id") @db.ObjectId
-  date     DateTime
+  date     DateTime @db.Date
   time     String
   userName String
   carName  String

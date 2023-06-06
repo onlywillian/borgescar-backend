@@ -14,6 +14,15 @@ router.get("/schedules/all", async (req: Request, res: Response) => {
 });
 
 router.post("/schedules/new", async (req: Request, res: Response) => {
+  const oldScheduling = await prisma.schedules.findFirst({
+    where: {
+      userName: req.body.userName,
+      date: req.body.date,
+    }
+  })
+
+  if (oldScheduling) return res.send({ Error: "Agendamento nessa data já existe!" }).status(400);
+
   const newScheduling = await prisma.schedules.create({
     data: req.body,
   });
