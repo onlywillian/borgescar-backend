@@ -28,7 +28,7 @@ router.post("/schedules/new", async (req: Request, res: Response) => {
   });
 
   if (!newScheduling)
-    return res.send({ Error: "Scheduling not created" }).status(403);
+    return res.send({ Error: "Erro ao criar o agendamento" }).status(403);
 
   return res.send({ Scheduling: newScheduling }).status(200);
 });

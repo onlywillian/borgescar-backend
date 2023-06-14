@@ -8,7 +8,7 @@ router.get("/users/all", async (req: Request, res: Response) => {
   const users = await prisma.user.findMany();
 
   if (users.length === 0)
-    return res.send({ Error: "users not found" }).status(404);
+    return res.send({ Error: "Nenhum usuário encontrado" }).status(404);
 
   return res.send(users).status(200);
 });
@@ -20,7 +20,7 @@ router.get("/users/:id", async (req: Request, res: Response) => {
     },
   });
 
-  if (!user) return res.send({ Error: "user not found" }).status(404);
+  if (!user) return res.send({ Error: "Usuário não encontrado" }).status(404);
 
   return res.send(user).status(200);
 });
@@ -32,13 +32,13 @@ router.post("/users/new", async (req: Request, res: Response) => {
     },
   });
 
-  if (user) return res.send({ Error: "Email alreads in use" }).status(401);
+  if (user) return res.send({ Error: "Este email já está em uso" }).status(401);
 
   const newUser = await prisma.user.create({
     data: req.body,
   });
 
-  if (!newUser) return res.send({ Error: "User is not created" }).status(201);
+  if (!newUser) return res.send({ Error: "Erro ao criar usuário" }).status(201);
 
   return res.send({ User: newUser }).status(200);
 });
