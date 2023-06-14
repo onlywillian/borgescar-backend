@@ -12,13 +12,13 @@ router.get("/cars/all", async (req: Request, res: Response) => {
   const cars = await prisma.car.findMany();
 
   if (cars.length === 0)
-    return res.send({ Error: "No cars found" }).status(404);
+    return res.send({ Error: "Nenhhum carro encontrado" }).status(404);
 
   return res.send({ Cars: cars }).status(200);
 });
 
 router.get("/cars/:id", async (req: Request, res: Response) => {
-  if (!req.params.id) return res.send({ Error: "Id not provided" }).status(401);
+  if (!req.params.id) return res.send({ Error: "ID não informado" }).status(401);
 
   const car = await prisma.car.findFirst({
     where: {
@@ -26,14 +26,14 @@ router.get("/cars/:id", async (req: Request, res: Response) => {
     },
   });
 
-  if (!car) return res.send({ Error: "Car is not created" }).status(500);
+  if (!car) return res.send({ Error: "Carro não criado" }).status(500);
 
   return res.send({ Car: car }).status(200);
 });
 
 router.post(
   "/cars/new",
-  upload.fields([{ name: "image1" }, { name: "image2" }, { name: "image3" }]),
+  upload.fields([{ name: "image1" }, { name: "image2" }, { name: "image3" }, { name: "image4" }]),
   async (req: Request, res: Response) => {
     const { name, description, type, price, stock } = req.body;
 
@@ -43,16 +43,17 @@ router.post(
       },
     });
 
-    if (car) return res.send({ Error: "Car alreads exists" }).status(401);
+    if (car) return res.send({ Error: "Este carrro já existe" }).status(401);
 
     const files: any = req.files;
 
-    const possibleDatas = ["image1", "image2", "image3"];
+    const possibleDatas = ["image1", "image2", "image3", "image4"];
 
     const googleDriveImagesIds = await uploadNewImage(name, [
       files[possibleDatas[0]][0],
       files[possibleDatas[1]][0],
       files[possibleDatas[2]][0],
+      files[possibleDatas[3]][0],
     ]);
 
     const imagesLink = googleDriveImagesIds.map(
@@ -71,7 +72,7 @@ router.post(
       },
     });
 
-    if (!newCar) return res.send({ Error: "Car is not created" }).status(500);
+    if (!newCar) return res.send({ Error: "Carro não criado" }).status(500);
 
     return res.send({ NewCar: newCar }).status(200);
   }
@@ -86,7 +87,7 @@ router.put("/cars/update", async (req: Request, res: Response) => {
     },
   });
 
-  if (!oldCar) return res.send({ Error: "" }).status(404);
+  if (!oldCar) return res.send({ Error: "O carro buscado não existe" }).status(404);
 
   const carUpdated = await prisma.car.update({
     where: {
@@ -101,7 +102,7 @@ router.put("/cars/update", async (req: Request, res: Response) => {
     },
   });
 
-  if (!carUpdated) return res.send({ Error: "Update error" }).status(401);
+  if (!carUpdated) return res.send({ Error: "Erro de atualização" }).status(401);
 
   return res.send({ Car: carUpdated }).status(200);
 });
@@ -109,7 +110,7 @@ router.put("/cars/update", async (req: Request, res: Response) => {
 router.delete("/cars/remove", async (req: Request, res: Response) => {
   const { id } = req.body;
 
-  if (!id) return res.send({ Error: "Id not provided" }).status(401);
+  if (!id) return res.send({ Error: "ID não informado" }).status(401);
 
   const deletedCar = await prisma.car.delete({
     where: {
@@ -118,9 +119,9 @@ router.delete("/cars/remove", async (req: Request, res: Response) => {
   });
 
   if (!deletedCar)
-    return res.send({ Error: "Some error has ocurred" }).status(500);
+    return res.send({ Error: "Deleção não ocorreu como esperado" }).status(500);
 
-  return res.send({ Succes: "Car sucesfully deleted" }).status(200);
+  return res.send({ Succes: "Carro excluído com sucesso" }).status(200);
 });
 
 export default router;
