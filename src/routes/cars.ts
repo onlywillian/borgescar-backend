@@ -3,6 +3,7 @@ import { Router, Request, Response } from "express";
 import multer from "multer";
 
 import uploadNewImage from "../drive/createDriveFiles";
+import updateFolder from "../drive/updateDriveFolder";
 
 const prisma = new PrismaClient();
 const router = Router();
@@ -88,6 +89,10 @@ router.put("/cars/update", async (req: Request, res: Response) => {
   });
 
   if (!oldCar) return res.send({ Error: "O carro buscado não existe" }).status(404);
+
+  if (oldCar.name !== name) {
+    updateFolder(oldCar.name, name);
+  }
 
   const carUpdated = await prisma.car.update({
     where: {
