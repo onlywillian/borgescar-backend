@@ -4,6 +4,7 @@ import multer from "multer";
 
 import uploadNewImage from "../drive/createDriveFiles";
 import updateFolder from "../drive/updateDriveFolder";
+import updateDriveImages from "../drive/updateDriveImages";
 
 const prisma = new PrismaClient();
 const router = Router();
@@ -36,6 +37,8 @@ router.get("/cars/:id", async (req: Request, res: Response) => {
 router.post("/cars/new", upload.any(), async (req: Request, res: Response) => {
   const { name, description, type, price, stock } = req.body;
 
+  console.log(req.files);
+
   const car = await prisma.car.findFirst({
     where: {
       name: name,
@@ -46,13 +49,13 @@ router.post("/cars/new", upload.any(), async (req: Request, res: Response) => {
 
   const files: any = req.files;
 
-  const possibleDatas = ["image1", "image2", "image3", "image4"];
+  // const possibleDatas = ["image1", "image2", "image3", "image4"];
 
   const googleDriveImagesIds = await uploadNewImage(name, [
-    files[possibleDatas[0]][0],
-    files[possibleDatas[1]][0],
-    files[possibleDatas[2]][0],
-    files[possibleDatas[3]][0],
+    files[0],
+    files[1],
+    files[2],
+    files[3],
   ]);
 
   const imagesLink = googleDriveImagesIds.map(
@@ -115,9 +118,11 @@ router.put(
   "/cars/updateImages",
   upload.any(),
   (req: Request, res: Response) => {
-    console.log(req.files);
+    const { carName } = req.body;
 
-    res.send({ ok: "ok" });
+    updateDriveImages(carName, req.files);
+
+    res.send({ Succes: "Imagens atualizadas" });
   }
 );
 
