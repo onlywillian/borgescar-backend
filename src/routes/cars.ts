@@ -19,7 +19,8 @@ router.get("/cars/all", async (req: Request, res: Response) => {
 });
 
 router.get("/cars/:id", async (req: Request, res: Response) => {
-  if (!req.params.id) return res.send({ Error: "ID não informado" }).status(401);
+  if (!req.params.id)
+    return res.send({ Error: "ID não informado" }).status(401);
 
   const car = await prisma.car.findFirst({
     where: {
@@ -32,52 +33,48 @@ router.get("/cars/:id", async (req: Request, res: Response) => {
   return res.send({ Car: car }).status(200);
 });
 
-router.post(
-  "/cars/new",
-  upload.fields([{ name: "image1" }, { name: "image2" }, { name: "image3" }, { name: "image4" }]),
-  async (req: Request, res: Response) => {
-    const { name, description, type, price, stock } = req.body;
+router.post("/cars/new", upload.any(), async (req: Request, res: Response) => {
+  const { name, description, type, price, stock } = req.body;
 
-    const car = await prisma.car.findFirst({
-      where: {
-        name: name,
-      },
-    });
+  const car = await prisma.car.findFirst({
+    where: {
+      name: name,
+    },
+  });
 
-    if (car) return res.send({ Error: "Este carrro já existe" }).status(401);
+  if (car) return res.send({ Error: "Este carrro já existe" }).status(401);
 
-    const files: any = req.files;
+  const files: any = req.files;
 
-    const possibleDatas = ["image1", "image2", "image3", "image4"];
+  const possibleDatas = ["image1", "image2", "image3", "image4"];
 
-    const googleDriveImagesIds = await uploadNewImage(name, [
-      files[possibleDatas[0]][0],
-      files[possibleDatas[1]][0],
-      files[possibleDatas[2]][0],
-      files[possibleDatas[3]][0],
-    ]);
+  const googleDriveImagesIds = await uploadNewImage(name, [
+    files[possibleDatas[0]][0],
+    files[possibleDatas[1]][0],
+    files[possibleDatas[2]][0],
+    files[possibleDatas[3]][0],
+  ]);
 
-    const imagesLink = googleDriveImagesIds.map(
-      (id) => `https://drive.google.com/uc?export=view&id=${id}`
-    );
+  const imagesLink = googleDriveImagesIds.map(
+    (id) => `https://drive.google.com/uc?export=view&id=${id}`
+  );
 
-    const newCar = await prisma.car.create({
-      data: {
-        name: name,
-        description: description,
-        type: type,
-        price: Number(price),
-        stock: Number(stock),
-        image_links: imagesLink,
-        audio_link: "",
-      },
-    });
+  const newCar = await prisma.car.create({
+    data: {
+      name: name,
+      description: description,
+      type: type,
+      price: Number(price),
+      stock: Number(stock),
+      image_links: imagesLink,
+      audio_link: "",
+    },
+  });
 
-    if (!newCar) return res.send({ Error: "Carro não criado" }).status(500);
+  if (!newCar) return res.send({ Error: "Carro não criado" }).status(500);
 
-    return res.send({ NewCar: newCar }).status(200);
-  }
-);
+  return res.send({ NewCar: newCar }).status(200);
+});
 
 router.put("/cars/update", async (req: Request, res: Response) => {
   const { id, name, description, type, price, stock } = req.body;
@@ -88,7 +85,8 @@ router.put("/cars/update", async (req: Request, res: Response) => {
     },
   });
 
-  if (!oldCar) return res.send({ Error: "O carro buscado não existe" }).status(404);
+  if (!oldCar)
+    return res.send({ Error: "O carro buscado não existe" }).status(404);
 
   if (oldCar.name !== name) {
     updateFolder(oldCar.name, name);
@@ -107,10 +105,21 @@ router.put("/cars/update", async (req: Request, res: Response) => {
     },
   });
 
-  if (!carUpdated) return res.send({ Error: "Erro de atualização" }).status(401);
+  if (!carUpdated)
+    return res.send({ Error: "Erro de atualização" }).status(401);
 
   return res.send({ Car: carUpdated }).status(200);
 });
+
+router.put(
+  "/cars/updateImages",
+  upload.any(),
+  (req: Request, res: Response) => {
+    console.log(req.files);
+
+    res.send({ ok: "ok" });
+  }
+);
 
 router.delete("/cars/remove", async (req: Request, res: Response) => {
   const { id } = req.body;
