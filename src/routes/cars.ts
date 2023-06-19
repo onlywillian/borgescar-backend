@@ -103,8 +103,8 @@ router.put("/cars/update", async (req: Request, res: Response) => {
       name: name,
       description: description,
       type: type,
-      price: price,
-      stock: stock,
+      price: Number(price),
+      stock: Number(stock),
     },
   });
 
