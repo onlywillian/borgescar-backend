@@ -33,4 +33,27 @@ router.post("/schedules/new", async (req: Request, res: Response) => {
   return res.send({ Scheduling: newScheduling }).status(200);
 });
 
+router.delete("/schedules/remove", async (req: Request, res: Response) => {
+  const { userName, date, id } = req.body
+
+  const scheduling = await prisma.schedules.findFirst({
+    where: {
+      userName: userName,
+      date: date,
+    }
+  })
+
+  if (!scheduling) return res.send({ Error: "Sem agendamentos nessa data" }).status(400);
+
+  const deletedScheduling = await prisma.schedules.delete({
+    where: { 
+      id: id
+    }
+  })
+
+  if (!deletedScheduling) return res.send({ Error: "Algum erro ocorreu" }).status(400);
+
+  return res.send({ Success: "Agendamento cancelado com sucesso" }).status(200);
+});
+
 export default router;
