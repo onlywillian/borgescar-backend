@@ -37,8 +37,6 @@ router.get("/cars/:id", async (req: Request, res: Response) => {
 router.post("/cars/new", upload.any(), async (req: Request, res: Response) => {
   const { name, description, type, price, stock } = req.body;
 
-  console.log(req.files);
-
   const car = await prisma.car.findFirst({
     where: {
       name: name,

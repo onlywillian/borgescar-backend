@@ -14,17 +14,15 @@ export default async function updateDriveImages(
   );
 
   try {
-    // Faz a consulta na API do Google Drive
     const res = await drive.files.list({
       q: `'${folderToUpdate!.id}' in parents and mimeType contains 'image/'`,
-      fields: "files(name, id, mimeType)",
+      fields: "files(id, mimeType)",
     });
 
-    // Extrai os dados das imagens retornadas
     const images = res.data.files;
 
-    // Imprime os nomes e os links das imagens
-    images!.forEach(async (image, index) => {
+    for (let index = 0; index < images!.length; index++) {
+      const image = images![index];
       const bufferStream = new PassThrough();
       bufferStream.end(imageBuffers[index].buffer);
 
@@ -35,7 +33,7 @@ export default async function updateDriveImages(
           body: bufferStream,
         },
       });
-    });
+    }
   } catch (err) {
     console.error("Erro ao listar as imagens:", err);
   }
