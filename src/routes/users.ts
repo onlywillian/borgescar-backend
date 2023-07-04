@@ -26,6 +26,9 @@ router.get("/users/:id", async (req: Request, res: Response) => {
 });
 
 router.post("/users/new", async (req: Request, res: Response) => {
+  if (!req.body.email)
+    return res.send({ Error: "O parâmetro email não foi passado" }).status(400);
+
   const user = await prisma.user.findFirst({
     where: {
       email: req.body.email,
