@@ -11,15 +11,16 @@ router.post("/adms/new", async (req: Request, res: Response) => {
     },
   });
 
-  if (adm) return res.send({ Error: "Administrador já existe" }).status(401);
+  if (adm) return res.status(401).send({ Error: "Administrador já existe" });
 
   const newAdm = await prisma.administrador.create({
     data: req.body,
   });
 
-  if (!newAdm) return res.send({ Error: "Erro ao criar o Administrador" }).status(201);
+  if (!newAdm)
+    return res.status(201).send({ Error: "Erro ao criar o Administrador" });
 
-  return res.send({ Adm: newAdm }).status(200);
+  return res.status(200).send({ Adm: newAdm });
 });
 
 export default router;

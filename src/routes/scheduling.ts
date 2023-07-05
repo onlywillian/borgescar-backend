@@ -8,9 +8,9 @@ router.get("/schedules/all", async (req: Request, res: Response) => {
   const schedules = await prisma.schedules.findMany();
 
   if (!schedules)
-    return res.send({ Error: "Scheduling not created" }).status(403);
+    return res.status(403).send({ Error: "Scheduling not created" });
 
-  return res.send({ Scheduling: schedules }).status(200);
+  return res.status(200).send({ Scheduling: schedules });
 });
 
 router.post("/schedules/new", async (req: Request, res: Response) => {
@@ -18,42 +18,45 @@ router.post("/schedules/new", async (req: Request, res: Response) => {
     where: {
       userName: req.body.userName,
       date: req.body.date,
-    }
-  })
+    },
+  });
 
-  if (oldScheduling) return res.send({ Error: "Agendamento nessa data já existe!" }).status(400);
+  if (oldScheduling)
+    return res.status(400).send({ Error: "Agendamento nessa data já existe!" });
 
   const newScheduling = await prisma.schedules.create({
     data: req.body,
   });
 
   if (!newScheduling)
-    return res.send({ Error: "Erro ao criar o agendamento" }).status(403);
+    return res.status(403).send({ Error: "Erro ao criar o agendamento" });
 
-  return res.send({ Scheduling: newScheduling }).status(200);
+  return res.status(200).send({ Scheduling: newScheduling });
 });
 
 router.delete("/schedules/remove", async (req: Request, res: Response) => {
-  const { userName, date, id } = req.body
+  const { userName, date, id } = req.body;
 
   const scheduling = await prisma.schedules.findFirst({
     where: {
       userName: userName,
       date: date,
-    }
-  })
+    },
+  });
 
-  if (!scheduling) return res.send({ Error: "Sem agendamentos nessa data" }).status(400);
+  if (!scheduling)
+    return res.status(400).send({ Error: "Sem agendamentos nessa data" });
 
   const deletedScheduling = await prisma.schedules.delete({
-    where: { 
-      id: id
-    }
-  })
+    where: {
+      id: id,
+    },
+  });
 
-  if (!deletedScheduling) return res.send({ Error: "Algum erro ocorreu" }).status(400);
+  if (!deletedScheduling)
+    return res.status(400).send({ Error: "Algum erro ocorreu" });
 
-  return res.send({ Success: "Agendamento cancelado com sucesso" }).status(200);
+  return res.status(200).send({ Success: "Agendamento cancelado com sucesso" });
 });
 
 export default router;

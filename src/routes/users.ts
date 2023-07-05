@@ -10,7 +10,7 @@ router.get("/users/all", async (req: Request, res: Response) => {
   if (users.length === 0)
     return res.send({ Error: "Nenhum usuário encontrado" }).status(404);
 
-  return res.send(users).status(200);
+  return res.status(200).send(users);
 });
 
 router.get("/users/:id", async (req: Request, res: Response) => {
@@ -20,14 +20,14 @@ router.get("/users/:id", async (req: Request, res: Response) => {
     },
   });
 
-  if (!user) return res.send({ Error: "Usuário não encontrado" }).status(404);
+  if (!user) return res.status(404).send({ Error: "Usuário não encontrado" });
 
-  return res.send(user).status(200);
+  return res.status(200).send(user);
 });
 
 router.post("/users/new", async (req: Request, res: Response) => {
   if (!req.body.email)
-    return res.send({ Error: "O parâmetro email não foi passado" }).status(400);
+    return res.status(400).send({ Error: "O parâmetro email não foi passado" });
 
   const user = await prisma.user.findFirst({
     where: {
@@ -35,15 +35,15 @@ router.post("/users/new", async (req: Request, res: Response) => {
     },
   });
 
-  if (user) return res.send({ Error: "Este email já está em uso" }).status(401);
+  if (user) return res.status(401).send({ Error: "Este email já está em uso" });
 
   const newUser = await prisma.user.create({
     data: req.body,
   });
 
-  if (!newUser) return res.send({ Error: "Erro ao criar usuário" }).status(201);
+  if (!newUser) return res.status(201).send({ Error: "Erro ao criar usuário" });
 
-  return res.send({ User: newUser }).status(200);
+  return res.status(200).send({ User: newUser });
 });
 
 router.put("/users/update", async (req: Request, res: Response) => {
@@ -59,7 +59,7 @@ router.put("/users/update", async (req: Request, res: Response) => {
     },
   });
 
-  return res.send(updatedUser).status(200);
+  return res.status(200).send(updatedUser);
 });
 
 router.delete("/users/remove", async (req: Request, res: Response) => {
@@ -71,7 +71,7 @@ router.delete("/users/remove", async (req: Request, res: Response) => {
     },
   });
 
-  return res.send({ DeletedUser: deletedUser }).status(200);
+  return res.status(200).send({ DeletedUser: deletedUser });
 });
 
 export default router;
