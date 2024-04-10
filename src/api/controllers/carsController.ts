@@ -1,25 +1,22 @@
 import { PrismaClient } from "@prisma/client";
-import { Router, Request, Response } from "express";
-import multer from "multer";
+import { Request, Response } from "express";
 
-import uploadNewImage from "../drive/createDriveFiles";
-import updateFolder from "../drive/updateDriveFolder";
-import updateDriveImages from "../drive/updateDriveImages";
+import uploadNewImage from "../../drive/createDriveFiles";
+import updateFolder from "../../drive/updateDriveFolder";
+import updateDriveImages from "../../drive/updateDriveImages";
 
 const prisma = new PrismaClient();
-const router = Router();
-const upload = multer();
 
-router.get("/cars/all", async (req: Request, res: Response) => {
+export const get = async (req: Request, res: Response) => {
   const cars = await prisma.car.findMany();
 
   if (cars.length === 0)
     return res.status(404).send({ Error: "Nenhhum carro encontrado" });
 
   return res.status(200).send({ Cars: cars });
-});
+};
 
-router.get("/cars/:id", async (req: Request, res: Response) => {
+export const getUnique = async (req: Request, res: Response) => {
   if (!req.params.id)
     return res.status(401).send({ Error: "ID não informado" });
 
@@ -32,9 +29,9 @@ router.get("/cars/:id", async (req: Request, res: Response) => {
   if (!car) return res.status(500).send({ Error: "Carro não criado" });
 
   return res.status(200).send({ Car: car });
-});
+};
 
-router.post("/cars/new", upload.any(), async (req: Request, res: Response) => {
+export const post = async (req: Request, res: Response) => {
   const { name, description, type, price, stock } = req.body;
 
   const car = await prisma.car.findFirst({
@@ -75,9 +72,9 @@ router.post("/cars/new", upload.any(), async (req: Request, res: Response) => {
   if (!newCar) return res.status(500).send({ Error: "Carro não criado" });
 
   return res.status(200).send({ NewCar: newCar });
-});
+};
 
-router.put("/cars/update", async (req: Request, res: Response) => {
+export const update = async (req: Request, res: Response) => {
   const { id, name, description, type, price, stock } = req.body;
 
   const oldCar = await prisma.car.findFirst({
@@ -110,21 +107,17 @@ router.put("/cars/update", async (req: Request, res: Response) => {
     return res.status(401).send({ Error: "Erro de atualização" });
 
   return res.status(200).send({ Car: carUpdated });
-});
+};
 
-router.put(
-  "/cars/updateImages",
-  upload.any(),
-  (req: Request, res: Response) => {
-    const { carName } = req.body;
+export const updateImages = (req: Request, res: Response) => {
+  const { carName } = req.body;
 
-    updateDriveImages(carName, req.files);
+  updateDriveImages(carName, req.files);
 
-    return res.send({ Succes: "Imagens atualizadas" });
-  }
-);
+  return res.send({ Succes: "Imagens atualizadas" });
+};
 
-router.delete("/cars/remove", async (req: Request, res: Response) => {
+export const deleteCar = async (req: Request, res: Response) => {
   const { id } = req.body;
 
   if (!id) return res.status(401).send({ Error: "ID não informado" });
@@ -139,6 +132,4 @@ router.delete("/cars/remove", async (req: Request, res: Response) => {
     return res.status(500).send({ Error: "Deleção não ocorreu como esperado" });
 
   return res.status(200).send({ Succes: "Carro excluído com sucesso" });
-});
-
-export default router;
+};

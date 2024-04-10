@@ -1,10 +1,9 @@
-import { Router, Request, Response } from "express";
+import { Request, Response } from "express";
 import { PrismaClient } from "@prisma/client";
 
-const router = Router();
 const prisma = new PrismaClient();
 
-router.post("/adms/new", async (req: Request, res: Response) => {
+export const post = async (req: Request, res: Response) => {
   const adm = await prisma.administrador.findFirst({
     where: {
       email: req.body.email,
@@ -21,6 +20,4 @@ router.post("/adms/new", async (req: Request, res: Response) => {
     return res.status(201).send({ Error: "Erro ao criar o Administrador" });
 
   return res.status(200).send({ Adm: newAdm });
-});
-
-export default router;
+};
