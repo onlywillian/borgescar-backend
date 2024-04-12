@@ -1,135 +1,68 @@
-import { PrismaClient } from "@prisma/client";
 import { Request, Response } from "express";
 
-import uploadNewImage from "../../drive/createDriveFiles";
-import updateFolder from "../../drive/updateDriveFolder";
 import updateDriveImages from "../../drive/updateDriveImages";
+import carSerivice from "../../services/carService";
+import ICar from "../../interfaces/carInterface";
 
-const prisma = new PrismaClient();
+export default class carsController {
+  private req: Request;
+  private res: Response;
+  private carSerivice: carSerivice;
 
-export const get = async (req: Request, res: Response) => {
-  const cars = await prisma.car.findMany();
-
-  if (cars.length === 0)
-    return res.status(404).send({ Error: "Nenhhum carro encontrado" });
-
-  return res.status(200).send({ Cars: cars });
-};
-
-export const getUnique = async (req: Request, res: Response) => {
-  if (!req.params.id)
-    return res.status(401).send({ Error: "ID não informado" });
-
-  const car = await prisma.car.findFirst({
-    where: {
-      id: req.params.id,
-    },
-  });
-
-  if (!car) return res.status(500).send({ Error: "Carro não criado" });
-
-  return res.status(200).send({ Car: car });
-};
-
-export const post = async (req: Request, res: Response) => {
-  const { name, description, type, price, stock } = req.body;
-
-  const car = await prisma.car.findFirst({
-    where: {
-      name: name,
-    },
-  });
-
-  if (car) return res.status(401).send({ Error: "Este carrro já existe" });
-
-  const files: any = req.files;
-
-  // const possibleDatas = ["image1", "image2", "image3", "image4"];
-
-  const googleDriveImagesIds = await uploadNewImage(name, [
-    files[0],
-    files[1],
-    files[2],
-    files[3],
-  ]);
-
-  const imagesLink = googleDriveImagesIds.map(
-    (id) => `https://drive.google.com/uc?export=view&id=${id}`
-  );
-
-  const newCar = await prisma.car.create({
-    data: {
-      name: name,
-      description: description,
-      type: type,
-      price: Number(price),
-      stock: Number(stock),
-      image_links: imagesLink,
-      audio_link: "",
-    },
-  });
-
-  if (!newCar) return res.status(500).send({ Error: "Carro não criado" });
-
-  return res.status(200).send({ NewCar: newCar });
-};
-
-export const update = async (req: Request, res: Response) => {
-  const { id, name, description, type, price, stock } = req.body;
-
-  const oldCar = await prisma.car.findFirst({
-    where: {
-      id: id,
-    },
-  });
-
-  if (!oldCar)
-    return res.status(404).send({ Error: "O carro buscado não existe" });
-
-  if (oldCar.name !== name) {
-    updateFolder(oldCar.name, name);
+  constructor(req: Request, res: Response) {
+    this.req = req;
+    this.res = res;
+    this.carSerivice = new carSerivice();
   }
 
-  const carUpdated = await prisma.car.update({
-    where: {
-      id: id,
-    },
-    data: {
-      name: name,
-      description: description,
-      type: type,
-      price: Number(price),
-      stock: Number(stock),
-    },
-  });
+  public async getAllCars() {
+    const cars = await this.carSerivice.getAllCars();
 
-  if (!carUpdated)
-    return res.status(401).send({ Error: "Erro de atualização" });
+    return this.res.status(200).send({ cars });
+  }
 
-  return res.status(200).send({ Car: carUpdated });
-};
+  public async getCarById() {
+    const { id } = this.req.params;
 
-export const updateImages = (req: Request, res: Response) => {
-  const { carName } = req.body;
+    const car = await this.carSerivice.getCarById(id);
 
-  updateDriveImages(carName, req.files);
+    return this.res.status(200).send({ car });
+  }
 
-  return res.send({ Succes: "Imagens atualizadas" });
-};
+  public async createCar() {
+    const carData: ICar = { ...this.req.body };
 
-export const deleteCar = async (req: Request, res: Response) => {
-  const { id } = req.body;
+    const files: any = this.req.files;
 
-  if (!id) return res.status(401).send({ Error: "ID não informado" });
+    const newCar = await this.carSerivice.createCar(carData, files);
 
-  const deletedCar = await prisma.car.delete({
-    where: {
-      id: id,
-    },
-  });
+    return this.res.status(200).send({ newCar });
+  }
 
-  if (!deletedCar)
-    return res.status(500).send({ Error: "Deleção não ocorreu como esperado" });
+  public async updateCar() {
+    const carData: ICar = { ...this.req.body };
 
-  return res.status(200).send({ Succes: "Carro excluído com sucesso" });
-};
+    const updatedCar = await this.carSerivice.updateCarById(
+      carData.id,
+      carData
+    );
+
+    return this.res.status(200).send({ updatedCar });
+  }
+
+  updateImages = (req: Request, res: Response) => {
+    const { carName } = req.body;
+
+    updateDriveImages(carName, req.files);
+
+    return res.send({ Succes: "Imagens atualizadas" });
+  };
+
+  public async deleteCar() {
+    const { id } = this.req.body;
+
+    const deletedCar = await this.carSerivice.deleteCarById(id);
+
+    return this.res.status(200).send({ deletedCar });
+  }
+}

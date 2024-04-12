@@ -1,23 +1,24 @@
 import { Request, Response } from "express";
-import { PrismaClient } from "@prisma/client";
 
-const prisma = new PrismaClient();
+import administradorService from "../../services/administratorService";
+import IAdministrator from "../../interfaces/administratorInterface";
 
-export const post = async (req: Request, res: Response) => {
-  const adm = await prisma.administrador.findFirst({
-    where: {
-      email: req.body.email,
-    },
-  });
+export default class administratorController {
+  private req: Request;
+  private res: Response;
+  private admService: administradorService;
 
-  if (adm) return res.status(401).send({ Error: "Administrador já existe" });
+  constructor(req: Request, res: Response) {
+    this.req = req;
+    this.res = res;
+    this.admService = new administradorService();
+  }
 
-  const newAdm = await prisma.administrador.create({
-    data: req.body,
-  });
+  public async createAdm() {
+    const admData: IAdministrator = { ...this.req.body };
 
-  if (!newAdm)
-    return res.status(201).send({ Error: "Erro ao criar o Administrador" });
+    const adm = await this.admService.createAdministrator(admData);
 
-  return res.status(200).send({ Adm: newAdm });
-};
+    return this.res.status(200).send({ adm });
+  }
+}

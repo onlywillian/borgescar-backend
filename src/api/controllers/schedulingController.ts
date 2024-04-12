@@ -1,59 +1,59 @@
 import { Request, Response } from "express";
-import { PrismaClient } from "@prisma/client";
+import schedulingService from "../../services/schedulingService";
+import IScheduling from "../../interfaces/schedulingInterface";
 
-const prisma = new PrismaClient();
+export default class UserController {
+  private req: Request;
+  private res: Response;
+  private schedulingService: schedulingService;
 
-export const get = async (req: Request, res: Response) => {
-  const schedules = await prisma.schedules.findMany();
+  constructor(req: Request, res: Response) {
+    this.req = req;
+    this.res = res;
+    this.schedulingService = new schedulingService();
+  }
 
-  if (!schedules)
-    return res.status(403).send({ Error: "Scheduling not created" });
+  public async getAllSchedules() {
+    const schedules = await this.schedulingService.getAllSchedules();
 
-  return res.status(200).send({ Scheduling: schedules });
-};
+    return schedules;
+  }
 
-export const post = async (req: Request, res: Response) => {
-  const oldScheduling = await prisma.schedules.findFirst({
-    where: {
-      userName: req.body.userName,
-      date: req.body.date,
-    },
-  });
+  public async getScheduleById() {
+    const { id } = this.req.params;
 
-  if (oldScheduling)
-    return res.status(400).send({ Error: "Agendamento nessa data já existe!" });
+    const schedule = await this.schedulingService.getScheduleById(id);
 
-  const newScheduling = await prisma.schedules.create({
-    data: req.body,
-  });
+    if (!schedule)
+      return this.res.status(404).send({ Error: "Usuário não encontrado" });
 
-  if (!newScheduling)
-    return res.status(403).send({ Error: "Erro ao criar o agendamento" });
+    return this.res.status(200).send({ schedule });
+  }
 
-  return res.status(200).send({ Scheduling: newScheduling });
-};
+  public async createSchedule() {
+    const scheduleData: IScheduling = { ...this.req.body };
 
-export const deleteScheduling = async (req: Request, res: Response) => {
-  const { userName, date, id } = req.body;
+    const schedule = await this.schedulingService.createSchedule(scheduleData);
 
-  const scheduling = await prisma.schedules.findFirst({
-    where: {
-      userName: userName,
-      date: date,
-    },
-  });
+    return this.res.status(200).send({ schedule });
+  }
 
-  if (!scheduling)
-    return res.status(400).send({ Error: "Sem agendamentos nessa data" });
+  public async updateSchedule() {
+    const scheduleData = this.req.body;
 
-  const deletedScheduling = await prisma.schedules.delete({
-    where: {
-      id: id,
-    },
-  });
+    const schedule = await this.schedulingService.updateScheduleById(
+      scheduleData.id,
+      scheduleData
+    );
 
-  if (!deletedScheduling)
-    return res.status(400).send({ Error: "Algum erro ocorreu" });
+    return this.res.status(200).send({ schedule });
+  }
 
-  return res.status(200).send({ Success: "Agendamento cancelado com sucesso" });
-};
+  public async deleteSchedule() {
+    const { id } = this.req.body;
+
+    const schedule = await this.schedulingService.deleteScheduleById(id);
+
+    return this.res.status(200).send({ schedule });
+  }
+}

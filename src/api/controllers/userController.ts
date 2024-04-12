@@ -1,74 +1,60 @@
 import { Request, Response } from "express";
-import { PrismaClient } from "@prisma/client";
 
-const prisma = new PrismaClient();
+import userService from "../../services/userService";
+import IUser from "../../interfaces/userInterface";
 
-export const get = async (req: Request, res: Response) => {
-  const users = await prisma.user.findMany();
+export default class UserController {
+  private req: Request;
+  private res: Response;
+  private userService: userService;
 
-  if (users.length === 0)
-    return res.send({ Error: "Nenhum usuário encontrado" }).status(404);
+  constructor(req: Request, res: Response) {
+    this.req = req;
+    this.res = res;
+    this.userService = new userService();
+  }
 
-  return res.status(200).send(users);
-};
+  public async getAllUsers() {
+    const users = await this.userService.getAllUsers();
 
-export const getUnique = async (req: Request, res: Response) => {
-  const user = await prisma.user.findFirst({
-    where: {
-      id: req.params.id,
-    },
-  });
+    if (users.length === 0)
+      return this.res.status(404).send({ Error: "Nenhum usuário encontrado" });
 
-  if (!user) return res.status(404).send({ Error: "Usuário não encontrado" });
+    return this.res.status(200).send({ users });
+  }
 
-  return res.status(200).send(user);
-};
+  public async getUniqueUser() {
+    const { id } = this.req.params;
 
-export const post = async (req: Request, res: Response) => {
-  if (!req.body.email)
-    return res.status(400).send({ Error: "O parâmetro email não foi passado" });
+    const user = await this.userService.getUserById(id);
 
-  const user = await prisma.user.findFirst({
-    where: {
-      email: req.body.email,
-    },
-  });
+    if (!user)
+      return this.res.status(404).send({ Error: "Usuário não encontrado" });
 
-  if (user) return res.status(401).send({ Error: "Este email já está em uso" });
+    return this.res.status(200).send({ user });
+  }
 
-  const newUser = await prisma.user.create({
-    data: req.body,
-  });
+  public async createUser() {
+    const userData: IUser = { ...this.req.body };
 
-  if (!newUser) return res.status(201).send({ Error: "Erro ao criar usuário" });
+    const user = await this.userService.createUser(userData);
 
-  return res.status(200).send({ User: newUser });
-};
+    return this.res.status(200).send({ user });
+  }
 
-export const update = async (req: Request, res: Response) => {
-  const { oldEmail, newEmail, newName } = req.body;
+  public async updateUser() {
+    const userData = this.req.body;
 
-  const updatedUser = await prisma.user.update({
-    where: {
-      email: oldEmail,
-    },
-    data: {
-      email: newEmail,
-      name: newName,
-    },
-  });
+    const user = await this.userService.updateUserById(userData.id, userData);
 
-  return res.status(200).send(updatedUser);
-};
+    return this.res.status(200).send({ user });
+  }
 
-export const deleteUser = async (req: Request, res: Response) => {
-  const { email } = req.body;
+  public async deleteUser() {
+    const { id } = this.req.body;
 
-  const deletedUser = await prisma.user.delete({
-    where: {
-      email: email,
-    },
-  });
+    const user = await this.userService.deleteUserById(id);
 
-  return res.status(200).send({ DeletedUser: deletedUser });
-};
+    return this.res.status(200).send({ user });
+  }
+}

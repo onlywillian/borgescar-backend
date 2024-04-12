@@ -1,17 +1,17 @@
 import express from "express";
-import usersRouter from "./routes/users";
-import carsRouter from "./routes/cars";
-import admsRouter from "./routes/administrator";
+import usersRouter from "./api/routes/userRouter";
+import carsRouter from "./api/routes/carRouter";
+import admsRouter from "./auth/administratorAuth";
 // Auth
 import usersAuth from "./auth/usersAuth";
 import administratorAuth from "./auth/administratorAuth";
-import schedulingRouter from "./routes/scheduling";
+import schedulingRouter from "./api/routes/schedulingRouter";
 import cors from "cors";
 
 const app = express();
 
-app.use(express.json({ limit: "50mb" }));
-app.use(express.urlencoded({ limit: "50mb", extended: true }));
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 app.use(cors());
 
 // Routes

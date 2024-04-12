@@ -1,8 +1,10 @@
 import { Router } from "express";
-import * as administratorController from "../controllers/AdministratorController";
+import administratorController from "../controllers/administratorController";
 
-const userRouter = Router();
+const administratorRouter = Router();
 
-userRouter.post("users/new", administratorController.post);
+administratorRouter.post("/administrator/new", (req, res) =>
+  new administratorController(req, res).createAdm()
+);
 
-export default userRouter;
+export default administratorRouter;
