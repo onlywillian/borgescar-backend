@@ -1,3 +1,4 @@
+import APIError from "../errors/apiError";
 import IUser from "../interfaces/userInterface";
 
 import { PrismaClient } from "@prisma/client";
@@ -27,6 +28,8 @@ export default class userService {
         id: userData.id,
       },
     });
+
+    if (user) throw new APIError("Error", "User already exists", 403);
 
     const newUser = await prisma.user.create({
       data: userData,

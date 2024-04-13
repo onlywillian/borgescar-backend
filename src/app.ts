@@ -7,6 +7,7 @@ import usersAuth from "./auth/usersAuth";
 import administratorAuth from "./auth/administratorAuth";
 import schedulingRouter from "./api/routes/schedulingRouter";
 import cors from "cors";
+import ErrorMiddleware from "./middlewares/errorMiddleware";
 
 const app = express();
 
@@ -19,6 +20,10 @@ app.use(usersRouter);
 app.use(carsRouter);
 app.use(admsRouter);
 app.use(schedulingRouter);
+
+// Errors
+app.use(ErrorMiddleware.errorHandler);
+
 // Auth
 app.use(usersAuth);
 app.use(administratorAuth);
