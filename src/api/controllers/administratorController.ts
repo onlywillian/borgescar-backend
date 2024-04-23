@@ -14,11 +14,23 @@ export default class administratorController {
     this.admService = new administradorService();
   }
 
+  public async getAdmById() {
+    try {
+      const { id } = this.req.params;
+
+      const adm = await this.admService.getAdmById(id);
+
+      return this.res.status(200).send({ adm });
+    } catch (err: any) {}
+  }
+
   public async createAdm() {
-    const admData: IAdministrator = { ...this.req.body };
+    try {
+      const admData: IAdministrator = { ...this.req.body };
 
-    const adm = await this.admService.createAdministrator(admData);
+      const adm = await this.admService.createAdministrator(admData);
 
-    return this.res.status(200).send({ adm });
+      return this.res.status(200).send({ adm });
+    } catch (err: any) {}
   }
 }
