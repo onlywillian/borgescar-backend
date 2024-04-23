@@ -10,39 +10,7 @@ const router = Router();
 // Secret key from .env file
 const SECRET_KEY = <Secret>process.env.SECRET;
 
-router.post("/auth/login", async (req: Request, res: Response) => {
-  const { email, password } = req.body;
-
-  const user = await prisma.user.findFirst({
-    where: {
-      email: email,
-    },
-  });
-
-  if (!user) return res.send({ Error: "User not found" }).status(200);
-
-  // Check if password exist
-  const comparePassword = await bcrypt.compare(password, user.password);
-
-  if (!comparePassword)
-    return res.send({ Error: "Wrong password" }).status(401);
-
-  // Creating jwt token
-  const token = jwt.sign(
-    {
-      name: user?.name,
-      email: user?.email,
-    },
-    SECRET_KEY,
-    {
-      expiresIn: "2 days",
-    }
-  );
-
-  return res
-    .send({ User: { name: user.name, email: user.email }, token: token })
-    .status(200);
-});
+router.post("/auth/login", async (req: Request, res: Response) => {});
 
 router.post("/auth/register", async (req: Request, res: Response) => {
   const { name, email, password } = req.body;

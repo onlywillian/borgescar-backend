@@ -23,11 +23,15 @@ export default class UserController {
   }
 
   public async getUniqueUser() {
-    const { id } = this.req.params;
+    try {
+      const { id } = this.req.params;
 
-    const user = await this.userService.getUserById(id);
+      const user = await this.userService.getUserById(id);
 
-    return this.res.status(200).send({ user });
+      return this.res.status(200).send({ user });
+    } catch (err: any) {
+      this.next(err);
+    }
   }
 
   public async createUser() {
@@ -43,18 +47,26 @@ export default class UserController {
   }
 
   public async updateUser() {
-    const userData = this.req.body;
+    try {
+      const userData: IUser = { ...this.req.body };
 
-    const user = await this.userService.updateUserById(userData.id, userData);
+      const user = await this.userService.updateUserById(userData);
 
-    return this.res.status(200).send({ user });
+      return this.res.status(200).send({ user });
+    } catch (err: any) {
+      this.next(err);
+    }
   }
 
   public async deleteUser() {
-    const { id } = this.req.body;
+    try {
+      const { id } = this.req.body;
 
-    const user = await this.userService.deleteUserById(id);
+      const user = await this.userService.deleteUserById(id);
 
-    return this.res.status(200).send({ user });
+      return this.res.status(200).send({ user });
+    } catch (err: any) {
+      this.next(err);
+    }
   }
 }

@@ -19,13 +19,15 @@ export default class userService {
       },
     });
 
+    if (!user) throw new APIError("Error", "User doesn't exists", 404);
+
     return user;
   }
 
   public async createUser(userData: IUser) {
     const user = await prisma.user.findFirst({
       where: {
-        id: userData.id,
+        email: userData.email,
       },
     });
 
@@ -38,18 +40,24 @@ export default class userService {
     return newUser;
   }
 
-  public async updateUserById(id: string, user: IUser) {
+  public async updateUserById(user: IUser) {
     const updatedUser = await prisma.user.update({
       where: {
-        id: id,
+        id: user.id,
       },
-      data: user,
+      data: {
+        name: user.name,
+        email: user.email,
+        password: user.password,
+      },
     });
 
     return updatedUser;
   }
 
   public async deleteUserById(id: string) {
+    this.getUserById(id);
+
     const deletedUser = await prisma.user.delete({
       where: {
         id: id,
