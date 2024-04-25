@@ -1,11 +1,9 @@
 import { Request, Response, NextFunction } from "express";
-import bcrypt from "bcrypt";
-import jwt, { Secret } from "jsonwebtoken";
 import admService from "../../services/administratorService";
-import IUser from "../../interfaces/userInterface";
 import IAdministrator from "../../interfaces/administratorInterface";
-
-const SECRET_KEY = <Secret>process.env.SECRET_KEY;
+import createTokenHelper from "../../helpers/createTokenHelper";
+import encryptPasswordHelper from "../../helpers/encryptPasswordHelper";
+import APIError from "../../errors/apiError";
 
 export default class administratorAuthController {
   private req: Request;
@@ -26,29 +24,22 @@ export default class administratorAuthController {
 
       const adm = await this.admService.getAdmById(id);
 
-      const comparePassword = await bcrypt.compare(password, adm.password);
-
-      if (!comparePassword)
-        return this.res.send({ Error: "Wrong password" }).status(401);
-
-      const token = jwt.sign(
-        {
-          id: adm?.id,
-          name: adm?.name,
-          email: adm?.email,
-          password: adm?.password,
-        },
-        SECRET_KEY,
-        {
-          expiresIn: "2 days",
-        }
+      const comparePasswords = await encryptPasswordHelper.compare(
+        password,
+        adm.password
       );
+
+      const token = createTokenHelper.create({ adm });
 
       return this.res
         .send({ adm: { name: adm.name, email: adm.email }, token: token })
         .status(200);
     } catch (err: any) {
-      this.next(err);
+      if (err instanceof APIError) {
+        return this.next(err);
+      }
+
+      return this.res.status(500).send({ error: err });
     }
   }
 
@@ -56,33 +47,28 @@ export default class administratorAuthController {
     try {
       const admData: IAdministrator = { ...this.req.body };
 
-      const adm = await this.admService.getAdmById(admData.id);
+      await this.admService.getAdmById(admData.id);
 
-      // Encrypting password
-      const salt = await bcrypt.genSalt(12);
-      const passwordHash = await bcrypt.hash(admData.password, salt);
-
-      const newadm: any = await this.admService.createAdministrator(admData);
-
-      // Creating jwt token
-      const token = jwt.sign(
-        {
-          id: newadm?.id,
-        },
-        SECRET_KEY,
-        {
-          expiresIn: "2 days",
-        }
+      const encryptPassword = await encryptPasswordHelper.encrypt(
+        admData.password
       );
+
+      const newAdm = await this.admService.createAdministrator(admData);
+
+      const token = createTokenHelper.create({ id: newAdm.id });
 
       return this.res
         .send({
-          adm: { id: newadm.id, name: newadm.name },
+          adm: { id: newAdm.id, name: newAdm.name },
           token: token,
         })
         .status(200);
     } catch (err: any) {
-      this.next(err);
+      if (err instanceof APIError) {
+        return this.next(err);
+      }
+
+      return this.res.status(500).send({ error: err });
     }
   }
 }

@@ -1,10 +1,10 @@
 import { Request, Response, NextFunction } from "express";
-import bcrypt from "bcrypt";
-import jwt, { Secret } from "jsonwebtoken";
 import userService from "../../services/userService";
 import IUser from "../../interfaces/userInterface";
+import APIError from "../../errors/apiError";
 
-const SECRET_KEY = <Secret>process.env.SECRET_KEY;
+import createTokenHelper from "../../helpers/createTokenHelper";
+import encryptPasswordHelper from "../../helpers/encryptPasswordHelper";
 
 export default class userAuthController {
   private req: Request;
@@ -21,54 +21,40 @@ export default class userAuthController {
 
   public async userLogin() {
     try {
-      const { id, email, password } = this.req.body;
+      const { email, password } = this.req.body;
 
-      const user = await this.userService.getUserById(id);
+      const user = await this.userService.getUserByEmail(email);
 
-      const comparePassword = await bcrypt.compare(password, user.password);
-
-      if (!comparePassword)
-        return this.res.send({ Error: "Wrong password" }).status(401);
-
-      const token = jwt.sign(
-        {
-          name: user?.name,
-          email: user?.email,
-        },
-        SECRET_KEY,
-        {
-          expiresIn: "2 days",
-        }
+      const comparePasswords = await encryptPasswordHelper.compare(
+        password,
+        user.password
       );
 
+      const token = createTokenHelper.create({ user });
+
       return this.res
-        .send({ user: { name: user.name, email: user.email }, token: token })
-        .status(200);
+        .status(200)
+        .send({ user: { name: user.name, email: user.email }, token: token });
     } catch (err: any) {
-      this.next(err);
+      if (err instanceof APIError) {
+        return this.next(err);
+      }
+
+      return this.res.status(500).send({ error: err });
     }
   }
 
   public async userRegister() {
     try {
-      const { id, name, email, password }: IUser = this.req.body;
+      const userData: IUser = { ...this.req.body };
 
-      const user = await this.userService.getUserById(id);
-
-      const salt = await bcrypt.genSalt(12);
-      const passwordHash = await bcrypt.hash(password, salt);
-
-      const newUser = await this.userService.createUser(this.req.body);
-
-      const token = jwt.sign(
-        {
-          id: newUser?.id,
-        },
-        SECRET_KEY,
-        {
-          expiresIn: "2 days",
-        }
+      const encryptPassword = await encryptPasswordHelper.encrypt(
+        userData.password
       );
+
+      const newUser = await this.userService.createUser(userData);
+
+      const token = createTokenHelper.create({ id: newUser.id });
 
       return this.res
         .send({
@@ -77,7 +63,11 @@ export default class userAuthController {
         })
         .status(200);
     } catch (err: any) {
-      this.next(err);
+      if (err instanceof APIError) {
+        return this.next(err);
+      }
+
+      return this.res.status(500).send({ error: err });
     }
   }
 }

@@ -24,6 +24,18 @@ export default class userService {
     return user;
   }
 
+  public async getUserByEmail(email: string) {
+    const user = await prisma.user.findFirst({
+      where: {
+        email: email,
+      },
+    });
+
+    if (!user) throw new APIError("Error", "User doesn't exists", 404);
+
+    return user;
+  }
+
   public async createUser(userData: IUser) {
     const user = await prisma.user.findFirst({
       where: {
